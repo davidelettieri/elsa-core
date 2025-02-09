@@ -68,5 +68,11 @@ public class JobQueue(IJobsChannel jobsChannel, ILogger<JobQueue> logger) : IJob
         return new EnqueuedJob(jobId, job, cts, OnJobCompleted);
     }
 
-    void OnJobCompleted(string completedJobId) => _scheduledItems.TryRemove(completedJobId, out _);
+    void OnJobCompleted(string completedJobId)
+    {
+        if (_scheduledItems.TryRemove(completedJobId, out var jobItem))
+        {
+            jobItem.CancellationTokenSource.Dispose();
+        }
+    }
 }
